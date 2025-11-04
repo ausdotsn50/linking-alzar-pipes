@@ -188,7 +188,17 @@ pipes_logic_pro.prototype = {
 		}
 	},
 
+	// Refer to this docs: https://docs.google.com/document/d/11I7ag3Bi5yJwxqJqq4KNCPjwFN8yogC3DyICXaxchgA/edit?usp=sharing
 	generate: function (hsize, vsize) {
+		/*
+			Kruskal's algorithm (simplified)
+			Pre requisite: A connected, undirected graph with weights assigned to each edge.
+
+			1. Create a list of all edges in the graph, with random weights.
+			2. Sort the edges in ascending order of their weights.
+			3. Initialize an empty graph to store the MST.	
+		*/
+
 		this.hsize = hsize;
 		this.vsize = vsize;
 
@@ -198,53 +208,64 @@ pipes_logic_pro.prototype = {
 
 		// To do: Generate an adjacency matrix that will be used for Kruskal's algorithm 
 		// edgeList shall store the weighted edges information
-		const edgeList = [];
+		
+		const edgeList = []; // edgeList shall be an array of objects
 		const directions = [ // To do: Check if grid comments are right
 			{ dx: 1, dy: 0, bit: 2, opp: 8 },  // grid down
-			{ dx: 0, dy: 1, bit: 4, opp: 1 },  // grid right
+			{ dx: 0, dy: 1, bit: 4, opp: 1 },  // grid right --> also used in MST connection
 		];
 
-		// Each cell is connected to its right and bottom neighbor
+		// Each cell is to be connected to its right and bottom neighbor
 		// Therefore, the # of edges = (hsize - 1) * vsize * 2
 		for (let x = 0; x < hsize; x++) {
 			for (let y = 0; y < vsize; y++) {
 			
-				// Check all directions
+				// Check right and bottom neighbors
 				for (const d of directions) {
 					const nx = x + d.dx;
 					const ny = y + d.dy;
 					
-					// All valid directions/neighbors are evaluated 
+					// Considering hsize - 1 and vsize - 1 to avoid out-of-boundary edges
 					if (nx >= 0 && nx < hsize && ny >= 0 && ny < vsize) {
 						const from = y * hsize + x;
 						const to = ny * hsize + nx;
 						const weight = Math.floor(Math.random() * 6);
 						
-						// Only the right and bottom are added to avoid duplicates
+						// Store edge information
 						edgeList.push({ from, to, weight, ...d });
 					}
 				}
 			}
 		}
 
-		console.table(edgeList);
+		console.table(edgeList); // For visualization
 
-		// Sort edges by weight (Kruskal’s)
+		// Sort edges by weight
 		edgeList.sort((a, b) => a.weight - b.weight);
 
 		// Union-Find for cycle detection
+		// Web ref: https://www.geeksforgeeks.org/dsa/kruskals-minimum-spanning-tree-algorithm-greedy-algo-2/
 		class UnionFind {
 			constructor(n) {
+				// Initializes parent of each vertex to itself
 				this.parent = Array.from({ length: n }, (_, i) => i);
 			}
+			
+			// Recursive find for locating root parent
 			find(x) {
 				if (this.parent[x] === x) return x;
 				return (this.parent[x] = this.find(this.parent[x]));
 			}
+			
+			// Union two vertices; return false if cycle detected
 			union(a, b) {
 				const ra = this.find(a);
 				const rb = this.find(b);
+
+				// ra and rb being equal means a cycle is detected
 				if (ra === rb) return false;
+
+				// else, continue with parent assignment + union
 				this.parent[rb] = ra;
 				return true;
 			}
@@ -256,26 +277,23 @@ pipes_logic_pro.prototype = {
 		// Build MST and connect pipes
 		for (const edge of edgeList) {
 			if (uf.union(edge.from, edge.to)) {
-			edgeCount++;
-			// Convert back to (x, y)
-			const x = edge.from % hsize;
-			const y = Math.floor(edge.from / hsize);
-			const nx = edge.to % hsize;
-			const ny = Math.floor(edge.to / hsize);
+				edgeCount++;
+				// Convert back to (x, y)
+				const x = edge.from % hsize;
+				const y = Math.floor(edge.from / hsize);
+				const nx = edge.to % hsize;
+				const ny = Math.floor(edge.to / hsize);
 
-			// Connect pipes in both directions using bitmask
-			this.pieces[x][y] |= edge.bit;
-			this.pieces[nx][ny] |= edge.opp;
-
-			if (edgeCount >= hsize * vsize - 1) break;
+				// Bitmask connection
+				// To be used later
+				this.pieces[x][y] |= edge.bit;
+				this.pieces[nx][ny] |= edge.opp;
+				
+				// hsize * vsize - 1 edges only for MST
+				if (edgeCount >= hsize * vsize - 1) break;
 			}
 		}
-
-		// console.log("✅ MST complete:", edgeCount, "edges");
-		// console.table(this.pieces);
 	},
-
-
 
 	scramble: function() {
 		var hsize = this.hsize;
