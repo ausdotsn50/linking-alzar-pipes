@@ -108,12 +108,12 @@ board_pro.prototype = {
 
 	replaceTileset: function(n) {
 		if (typeof(n) != "undefined") globals.tileset = globals.tilesets[n];
-		this.tileset_loading.style.display = "";
+		// this.tileset_loading.style.display = "";
 		this.tileImage.src = "images/" + globals.tileset.filename;
 	},
 
 	_replaceTileset: function(n) {
-		this.tileset_loading.style.display = "none";
+		// this.tileset_loading.style.display = "none";
 
 		var hsize = this.hsize;
 		var vsize = this.vsize;

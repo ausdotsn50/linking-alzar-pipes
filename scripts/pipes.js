@@ -21,11 +21,7 @@ along with The Pipes Game.  If not, see <http://www.gnu.org/licenses/>.
 globals = {}
 
 globals.tilesets = [
-//{name:"Very Large (96×96)", h:96, v:96, filename: "tileset_96.png"},
 {name:"Large (64×64)", h:64, v:64, filename: "tileset_64.png"},
-{name:"Medium (48×48)", h:48, v:48, filename: "tileset_48.png"},
-{name:"Small (32×32)", h:32, v:32, filename: "tileset_32.png"},
-{name:"Very Small (24×24)", h:24, v:24, filename: "tileset_24.png"}
 ];
 
 globals.tileset = globals.tilesets[0];
@@ -72,16 +68,6 @@ function form_size() {
 	}
 }
 
-function addTilesetChooser() {
-	var s = '<select id="tileset_select" onchange="board.replaceTileset(this.value); this.blur()">';
-	var c = globals.tilesets.length;
-	for (var i=0; i<c; i++) {
-		s += '<option value="' + i + '">' + globals.tilesets[i].name + '</option>';
-	}
-	s += '</select>';
-	document.getElementById("tileset_placeholder").innerHTML = s;
-}
-
 // Function adapted from Ext JS. (w/ GPLv3 License) Proof of concept only.
 function createDelegate(func, obj, args, appendArgs){
 	var method = func;
@@ -100,7 +86,6 @@ function createDelegate(func, obj, args, appendArgs){
 }
 
 function init() {
-	addTilesetChooser();
 	board = new board_pro();
 	pipes_logic = new pipes_logic_pro();
 	controller = new controller_pro(0, "controller");

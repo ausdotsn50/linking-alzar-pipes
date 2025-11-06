@@ -293,6 +293,8 @@ pipes_logic_pro.prototype = {
 				if (edgeCount >= hsize * vsize - 1) break;
 			}
 		}
+
+		
 	},
 
 	scramble: function() {
@@ -439,4 +441,6 @@ pipes_logic_pro.prototype = {
 
 		return true;
 	}
+
+	// To do: generate an auto solution if user wants to surrender for solution
 }
