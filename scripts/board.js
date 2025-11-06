@@ -37,7 +37,10 @@ board_pro.prototype = {
 	getXY: function(x, y) {
 		var h = globals.tileset.h;
 		var v = globals.tileset.v;
-		return [Math.floor(x/h), Math.floor(y/v)];
+		var rect = this.game_content.getBoundingClientRect();
+		var relativeX = x - rect.left;
+		var relativeY = y - rect.top;
+		return [Math.floor(relativeX/h), Math.floor(relativeY/v)];
 	},
 
 	refreshPiece: function(x, y, caller) {
