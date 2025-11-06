@@ -167,50 +167,30 @@ board_pro.prototype = {
 		var h = globals.tileset.h;
 		var v = globals.tileset.v;
 		
-		// Never change the canvas size - keep it fixed
+		// Fixed canvas dimensions
 		const FIXED_WIDTH = 1200;
 		const FIXED_HEIGHT = 100;
+		this.ctx_draggables.clearRect(0, 0, FIXED_WIDTH, FIXED_HEIGHT); // Clear canvas
 		
-		// Clear the canvas with fixed dimensions
-		this.ctx_draggables.clearRect(0, 0, FIXED_WIDTH, FIXED_HEIGHT);
-		
-		// Calculate number of pieces (25% of board size)
+		// Generate a set of random pieces for the draggable area
 		var numPieces = Math.ceil((this.hsize * this.vsize) / 4);
 		var pieces = [];
-
-		// First, collect all non-zero positions
-		let availablePositions = [];
-		for (let x = 0; x < this.hsize; x++) {
-			for (let y = 0; y < this.vsize; y++) {
-				if (this.caller.pieces[x][y] !== 0) {
-					availablePositions.push({
-						x: x,
-						y: y,
-						piece: this.caller.pieces[x][y],
-						state: this.caller.states[x][y]
-					});
-				}
-			}
-		}
 		
-		// Shuffle available positions
-		for (let i = availablePositions.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[availablePositions[i], availablePositions[j]] = [availablePositions[j], availablePositions[i]];
+		// Generate random pipe pieces (values 1-15 represent different pipe configurations)
+		for (let i = 0; i < numPieces; i++) {
+			pieces.push({
+				piece: Math.floor(Math.random() * 15) + 1, // Random pipe configuration (1-15)
+				state: 0 // Normal state
+			});
 		}
-		
-		// Take the first numPieces positions
-		pieces = availablePositions.slice(0, Math.min(numPieces, availablePositions.length));
-
-		console.log(`Generated ${pieces.length} pieces out of ${numPieces} target`);
 
 		// Calculate spacing and position to center pieces in fixed canvas
-		var spacing = 10; // Consistent spacing between pieces
+		var spacing = 10;
 		var totalPiecesWidth = (pieces.length * (h + spacing)) + spacing;
 		var startX = Math.max(spacing, (FIXED_WIDTH - totalPiecesWidth) / 2);
 		var centerY = (FIXED_HEIGHT - v) / 2;
 
-		// Draw all pieces at original size
+		// Draw all pieces in draggable area
 		pieces.forEach((p, index) => {
 			this.ctx_draggables.drawImage(
 				this.tileImage,

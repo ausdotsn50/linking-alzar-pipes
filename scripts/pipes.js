@@ -46,6 +46,9 @@ function newgame() {
 
 	startTimer();
 	document.getElementById("timer").className = "";
+	
+	// Update draggable pipes after generating new game
+	board.drawDraggablePipes();
 }
 
 function form_size() {
