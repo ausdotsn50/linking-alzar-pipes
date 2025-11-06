@@ -55,14 +55,20 @@
             }
 
             #draggableBoard {
-                width: 80%;
-                max-width: 800px;
+                width: 90%;
+                max-width: none;
                 margin-top: auto;
                 padding: 15px;
                 background-color: #f0f0f0;
                 border: 2px solid #ccc;
                 border-radius: 8px;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                overflow-x: auto; /* Allow horizontal scrolling if needed */
+            }
+            
+            #draggablePipes {
+                display: block; /* Remove any default inline spacing */
+                min-width: 100%; /* Ensure it takes up at least full width */
             }
         </style>
     </head>
@@ -126,7 +132,7 @@
             </div>
 
             <div id="draggableBoard">
-                <canvas id="draggablePipes" width="600" height="100"></canvas>
+                <canvas id="draggablePipes" width="800" height="80"></canvas>
             </div>
         </div>
 

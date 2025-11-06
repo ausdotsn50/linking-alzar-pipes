@@ -19,10 +19,14 @@ along with The Pipes Game.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 function board_pro() {
-	this.game_content = document.getElementById("gameContent");
 	this.menu_placeholder = document.getElementById("menu_placeholder");
 	this.tileset_loading = document.getElementById("loading_images");
-	this.ctx = document.getElementById("gameContent").getContext('2d');
+	
+	this.game_content = document.getElementById("gameContent");
+	this.ctx = this.game_content.getContext('2d');
+
+	this.draggable_pipes = document.getElementById("draggablePipes");
+	this.ctx_draggables = this.draggable_pipes.getContext('2d');
 
 	this.tileImage = new Image();
 	this.tileImage.onload = createDelegate(this._replaceTileset, this);
@@ -57,6 +61,8 @@ board_pro.prototype = {
 	},
 
 	refresh: function(caller) {
+		this.caller = caller;
+
 		var hsize = caller.hsize;
 		var vsize = caller.vsize;
 
@@ -106,6 +112,9 @@ board_pro.prototype = {
 
 			this.hsize = hsize;
 			this.vsize = vsize;
+
+			// Update draggable pipes with new board pieces
+			this.drawDraggablePipes();
 		}
 	},
 
@@ -138,6 +147,9 @@ board_pro.prototype = {
 			}
 			this.menu_placeholder.style.left=(hsize * h) + "px";
 		}
+		
+		// Draw the draggable pipes
+		this.drawDraggablePipes();
 	},
 
 	scrollTo: function(x, y) {
@@ -147,6 +159,77 @@ board_pro.prototype = {
 		var wv = window.innerHeight || document.body.parentElement.clientHeight;
 
 		window.scrollTo(x*h - (wh - h - 200)/2, y*v - (wv - v)/2);
+	},
+
+	drawDraggablePipes: function() {
+		if (!this.ctx_draggables || !this.draggable_pipes || !this.caller) return;
+
+		var h = globals.tileset.h;
+		var v = globals.tileset.v;
+		
+		// Set canvas height to match tile height plus padding
+		this.draggable_pipes.height = v + 20;  // tile height + 10px padding top and bottom
+		
+		// Initially set a minimum width
+		this.draggable_pipes.width = 800;
+		
+		// Clear the canvas
+		this.ctx_draggables.clearRect(0, 0, this.draggable_pipes.width, this.draggable_pipes.height);
+		
+		// Calculate number of pieces (25% of board size)
+		var numPieces = Math.ceil((this.hsize * this.vsize) / 4);
+		var pieces = [];
+
+		// First, collect all non-zero positions
+		let availablePositions = [];
+		for (let x = 0; x < this.hsize; x++) {
+			for (let y = 0; y < this.vsize; y++) {
+				if (this.caller.pieces[x][y] !== 0) {
+					availablePositions.push({
+						x: x,
+						y: y,
+						piece: this.caller.pieces[x][y],
+						state: this.caller.states[x][y]
+					});
+				}
+			}
+		}
+		
+		// Shuffle available positions
+		for (let i = availablePositions.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[availablePositions[i], availablePositions[j]] = [availablePositions[j], availablePositions[i]];
+		}
+		
+		// Take the first numPieces positions
+		pieces = availablePositions.slice(0, Math.min(numPieces, availablePositions.length));
+
+		console.log(`Generated ${pieces.length} pieces out of ${numPieces} target`);
+
+		// Calculate total width needed and adjust canvas if necessary
+		var spacing = 10; // Consistent spacing between pieces
+		var requiredWidth = (pieces.length * (h + spacing)) + spacing;
+		if (this.draggable_pipes.width < requiredWidth) {
+			this.draggable_pipes.width = requiredWidth;
+		}
+
+		var startX = spacing;
+		var centerY = (this.draggable_pipes.height - v) / 2;
+
+		// Draw all pieces at original size
+		pieces.forEach((p, index) => {
+			this.ctx_draggables.drawImage(
+				this.tileImage,
+				p.piece * h,
+				p.state * v,
+				h,
+				v,
+				startX + (h + spacing) * index,
+				centerY,
+				h,
+				v
+			);
+		});
 	}
 }
 
