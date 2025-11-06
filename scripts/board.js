@@ -48,6 +48,15 @@ board_pro.prototype = {
 	},
 
 	refreshPiece: function(x, y, caller) {
+		// Skip if this piece is in draggable area
+		if (this.draggablePieces && this.draggablePieces.some(p => p.x === x && p.y === y)) {
+			// Clear the area where the piece was
+			var h = globals.tileset.h;
+			var v = globals.tileset.v;
+			this.ctx.clearRect(x*h, y*v, h, v);
+			return;
+		}
+
 		var ix = caller.pieces[x][y];
 		var iy = caller.states[x][y];
 		var h = globals.tileset.h;
@@ -69,10 +78,19 @@ board_pro.prototype = {
 		var h = globals.tileset.h;
 		var v = globals.tileset.v;
 
+		// Helper function to check if a position is in draggable pieces
+		const isPieceInDraggable = (x, y) => {
+			if (!this.draggablePieces) return false;
+			return this.draggablePieces.some(p => p.x === x && p.y === y);
+		};
+
 		if (hsize == this.hsize && vsize == this.vsize) {
 		// if size is okay, only redraw needed tiles
 			for (var y=0; y < vsize; y++) {
 				for (var x=0; x < hsize; x++) {
+					// Skip if this piece is in draggable area
+					if (isPieceInDraggable(x, y)) continue;
+					
 					var ix = caller.pieces[x][y];
 					var iy = caller.states[x][y];
 					if (ix != this.oldpieces[x][y] || iy != this.oldstates[x][y]) {
@@ -98,6 +116,9 @@ board_pro.prototype = {
 
 			for (var y=0; y<vsize; y++) {
 				for (var x=0; x<hsize; x++) {
+					// Skip if this piece is in draggable area
+					if (isPieceInDraggable(x, y)) continue;
+
 					var ix = caller.pieces[x][y];
 					var iy = caller.states[x][y];
 
@@ -172,18 +193,33 @@ board_pro.prototype = {
 		const FIXED_HEIGHT = 100;
 		this.ctx_draggables.clearRect(0, 0, FIXED_WIDTH, FIXED_HEIGHT); // Clear canvas
 		
-		// Generate a set of random pieces for the draggable area
+		// Calculate how many pieces we need
 		var numPieces = Math.ceil((this.hsize * this.vsize) / 4);
-		var pieces = [];
 		
-		// Generate random pipe pieces (values 1-15 represent different pipe configurations)
-		for (let i = 0; i < numPieces; i++) {
-			pieces.push({
-				piece: Math.floor(Math.random() * 15) + 1, // Random pipe configuration (1-15)
-				state: 0 // Normal state
-			});
+		// Find all existing pieces in the game board
+		let availablePositions = [];
+		for (let x = 0; x < this.hsize; x++) {
+			for (let y = 0; y < this.vsize; y++) {
+				if (this.caller.pieces[x][y] !== 0) {
+					availablePositions.push({
+						x: x,
+						y: y,
+						piece: this.caller.pieces[x][y],
+						state: this.caller.states[x][y]
+					});
+				}
+			}
 		}
-
+		
+		// Shuffle the available positions
+		for (let i = availablePositions.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[availablePositions[i], availablePositions[j]] = [availablePositions[j], availablePositions[i]];
+		}
+		
+		// Take a random subset of the available pieces
+		var pieces = availablePositions.slice(0, numPieces);
+		
 		// Calculate spacing and position to center pieces in fixed canvas
 		var spacing = 10;
 		var totalPiecesWidth = (pieces.length * (h + spacing)) + spacing;
