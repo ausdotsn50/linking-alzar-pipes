@@ -63,57 +63,18 @@ controlsets = [
 			}
 		}
 	},
-		{
-		name: "Keyboard",
-		desc: "<p><i>Arrow keys</i>: Move cursor</p><p><i>Space, Z</i>: Rotate piece clockwise</p><p><i>X</i>: Rotate piece counterclockwise</p><p><i>C</i>: Toggle highlight</p><p><i>V</i>: Start lighting here</p><p><i>Note: rotating a piece highlights it automatically</i></p>",
-		eventprocess: function(e) {
-			var t = (e.target || e.srcElement).tagName.toLowerCase();
-			if (e.type == "keydown" && (t == "html" || t == "body" || t == "canvas")) {
-				var keyCode = e.keyCode;
-				if (keyCode == 39) { // right
-					pipes_logic.moveCursor( 1, 0);
-				} else if (keyCode == 40) { // down
-					pipes_logic.moveCursor( 0, 1);
-				} else if (keyCode == 37) { // left
-					pipes_logic.moveCursor(-1, 0);
-				} else if (keyCode == 38) { // up
-					pipes_logic.moveCursor( 0,-1);
-				} else if (keyCode == 32 || keyCode == 90) { // space, z
-					pipes_logic.tagPiece(undefined, undefined, true);
-					pipes_logic.rotatePiece();
-				} else if (keyCode == 88) { // x
-					pipes_logic.tagPiece(undefined, undefined, true);
-					pipes_logic.rotatePiece(undefined, undefined, 1)
-				} else if (keyCode == 67) { // c
-					pipes_logic.togglePiece();
-				} else if (keyCode == 86) { // v
-					pipes_logic.light(pipes_logic.cursorx, pipes_logic.cursory);
-				}
-			} else if (e.type == "keydown") alert(t);
-			if (e.type == "keydown" && (t == "html" || t == "body")) {
-				if (keyCode >= 37 && keyCode <= 40 || keyCode == 32) return false;
-			}
-		}
-	}
 ];
 
-function controller_pro(n, objectname) {
-	var s = '<select id="control_select" onchange="' + objectname + '.setControlset(this.value); this.blur();">';
-	var c = controlsets.length;
-	for (var i=0; i<c; i++) {
-		s += '<option value="' + i + '">' + controlsets[i].name + '</option>';
-	}
-	s += '</select>';
-	document.getElementById("controlset_placeholder").innerHTML = s;
-
-	this.setControlset(n);
+// Mouse control set as default - keyboard removed
+function controller_pro() {
+	this.controlset = controlsets[0];
 }
+
 controller_pro.prototype = {
-	controlset: 0,
+	controlset: null,
 
 	setControlset: function(n) {
-		this.controlset = controlsets[n];
-		document.getElementById("controlset_desc").innerHTML = this.controlset.desc;
+		this.controlset = controlsets[0];
 	},
 
 	eventprocess: function(e) {

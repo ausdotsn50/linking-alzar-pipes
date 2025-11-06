@@ -88,7 +88,9 @@ function createDelegate(func, obj, args, appendArgs){
 function init() {
 	board = new board_pro();
 	pipes_logic = new pipes_logic_pro();
-	controller = new controller_pro(0, "controller");
+	controller = new controller_pro();
+	
+	newgame();
 
 	if (window.location.search.length > 1)
 		io.loadgame(window.location.search.substr(1));
