@@ -167,14 +167,12 @@ board_pro.prototype = {
 		var h = globals.tileset.h;
 		var v = globals.tileset.v;
 		
-		// Set canvas height to match tile height plus padding
-		this.draggable_pipes.height = v + 20;  // tile height + 10px padding top and bottom
+		// Never change the canvas size - keep it fixed
+		const FIXED_WIDTH = 1200;
+		const FIXED_HEIGHT = 100;
 		
-		// Initially set a minimum width
-		this.draggable_pipes.width = 800;
-		
-		// Clear the canvas
-		this.ctx_draggables.clearRect(0, 0, this.draggable_pipes.width, this.draggable_pipes.height);
+		// Clear the canvas with fixed dimensions
+		this.ctx_draggables.clearRect(0, 0, FIXED_WIDTH, FIXED_HEIGHT);
 		
 		// Calculate number of pieces (25% of board size)
 		var numPieces = Math.ceil((this.hsize * this.vsize) / 4);
@@ -206,15 +204,11 @@ board_pro.prototype = {
 
 		console.log(`Generated ${pieces.length} pieces out of ${numPieces} target`);
 
-		// Calculate total width needed and adjust canvas if necessary
+		// Calculate spacing and position to center pieces in fixed canvas
 		var spacing = 10; // Consistent spacing between pieces
-		var requiredWidth = (pieces.length * (h + spacing)) + spacing;
-		if (this.draggable_pipes.width < requiredWidth) {
-			this.draggable_pipes.width = requiredWidth;
-		}
-
-		var startX = spacing;
-		var centerY = (this.draggable_pipes.height - v) / 2;
+		var totalPiecesWidth = (pieces.length * (h + spacing)) + spacing;
+		var startX = Math.max(spacing, (FIXED_WIDTH - totalPiecesWidth) / 2);
+		var centerY = (FIXED_HEIGHT - v) / 2;
 
 		// Draw all pieces at original size
 		pieces.forEach((p, index) => {
