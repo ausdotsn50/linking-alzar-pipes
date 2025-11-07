@@ -74,40 +74,6 @@ board_pro.prototype = {
 		}
 	},
 
-	selectDraggablePieces: function() {
-		// Calculate how many pieces we need
-		var numPieces = this.caller.hsize;
-		
-		// Find all existing pieces
-		let availablePositions = [];
-		for (let x = 0; x < this.caller.hsize; x++) {
-			for (let y = 0; y < this.caller.vsize; y++) {
-				// Check for any non-zero piece
-				if (this.caller.pieces[x] && this.caller.pieces[x][y] > 0) {
-					availablePositions.push({ x, y });
-				}
-			}
-		}
-		
-		if (availablePositions.length === 0) {
-			// If no pieces found, create some default pieces
-			for (let i = 0; i < numPieces; i++) {
-				let x = Math.floor(Math.random() * this.caller.hsize);
-				let y = Math.floor(Math.random() * this.caller.vsize);
-				availablePositions.push({ x, y });
-			}
-		} else {
-			// Shuffle existing pieces
-			for (let i = availablePositions.length - 1; i > 0; i--) {
-				const j = Math.floor(Math.random() * (i + 1));
-				[availablePositions[i], availablePositions[j]] = [availablePositions[j], availablePositions[i]];
-			}
-		}
-		
-		// draggablePiece subset only of availablePositions
-		this.draggablePiecePositions = availablePositions.slice(0, numPieces);
-	},
-
 	refresh: function(caller) {
 		this.caller = caller;
 
@@ -182,18 +148,9 @@ board_pro.prototype = {
 		}
 	},
 
-	drawOnWin: function(caller) {
-		this.refresh(caller);
-	},
-
 	replaceTileset: function(n) {
 		if (typeof(n) != "undefined") globals.tileset = globals.tilesets[n];
 		this.tileImage.src = "images/" + globals.tileset.filename;
-	},
-
-	clearDraggables: function() {
-		if (!this.draggables_context || !this.draggable_pipes) return;
-		this.draggables_context.clearRect(0, 0, this.draggable_pipes.width, this.draggable_pipes.height);
 	},
 
 	_replaceTileset: function(n) {
@@ -231,6 +188,44 @@ board_pro.prototype = {
 		window.scrollTo(x*h - (wh - h - 200)/2, y*v - (wv - v)/2);
 	},
 	*/
+	selectDraggablePieces: function() {
+		// Calculate how many pieces we need
+		var numPieces = this.caller.hsize;
+		
+		// Find all existing pieces
+		let availablePositions = [];
+		for (let x = 0; x < this.caller.hsize; x++) {
+			for (let y = 0; y < this.caller.vsize; y++) {
+				// Check for any non-zero piece
+				if (this.caller.pieces[x] && this.caller.pieces[x][y] > 0) {
+					availablePositions.push({ x, y });
+				}
+			}
+		}
+		
+		if (availablePositions.length === 0) {
+			// If no pieces found, create some default pieces
+			for (let i = 0; i < numPieces; i++) {
+				let x = Math.floor(Math.random() * this.caller.hsize);
+				let y = Math.floor(Math.random() * this.caller.vsize);
+				availablePositions.push({ x, y });
+			}
+		} else {
+			// Shuffle existing pieces
+			for (let i = availablePositions.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[availablePositions[i], availablePositions[j]] = [availablePositions[j], availablePositions[i]];
+			}
+		}
+		
+		// draggablePiece subset only of availablePositions
+		this.draggablePiecePositions = availablePositions.slice(0, numPieces);
+	},
+	
+	clearDraggables: function() {
+		if (!this.draggables_context || !this.draggable_pipes) return;
+		this.draggables_context.clearRect(0, 0, this.draggable_pipes.width, this.draggable_pipes.height);
+	},
 
 	drawDraggablePipes: function() {
 		// Checker
@@ -267,6 +262,29 @@ board_pro.prototype = {
 				v
 			);
 		});
-	}
+	},
+
+	drawOnWin: function(caller) {
+		// Clear the separate draggable canvas
+		this.clearDraggables();
+
+		var h = globals.tileset.h;
+		var v = globals.tileset.v;
+
+		// Draggable pieces in the main board
+		this.draggablePiecePositions.forEach(pos => {
+			var ix = caller.pieces[pos.x][pos.y];
+			var iy = caller.states[pos.x][pos.y];
+			this.ctx.drawImage(this.tileImage, ix*h, iy*v, h, v, pos.x*h, pos.y*v, h, v);
+			// Also update the 'old' state to prevent refresh from re-drawing
+			if (this.oldpieces && this.oldpieces[pos.x]) {
+				this.oldpieces[pos.x][pos.y] = ix;
+				this.oldstates[pos.x][pos.y] = iy;
+			}
+		});
+
+		// Refresh the entire board to draw the non-draggable pieces
+		this.refresh(caller);
+	},
 }
 
