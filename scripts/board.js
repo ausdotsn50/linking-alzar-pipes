@@ -59,7 +59,7 @@ board_pro.prototype = {
 
 	refreshPiece: function(x, y, caller) {
 		// Skip if this piece is in draggable area
-		if (this.draggablePieces && this.draggablePieces.some(p => p.x === x && p.y === y)) {
+		if (this.draggablePiecePositions && this.draggablePiecePositions.some(p => p.x === x && p.y === y)) {
 			// Clear the area where the piece was
 			var h = globals.tileset.h;
 			var v = globals.tileset.v;
@@ -156,7 +156,11 @@ board_pro.prototype = {
 			for (var y=0; y < vsize; y++) {
 				for (var x=0; x < hsize; x++) {
 					// Skip if this piece is in draggable area
-					if (isPieceInDraggable(x, y)) continue;
+					if (this.draggablePiecePositions && this.draggablePiecePositions.some(p => p.x === x && p.y === y)) {
+						// Clear the area where the piece was
+						this.ctx.clearRect(x*h, y*v, h, v);
+						continue;
+					}
 					
 					var ix = caller.pieces[x][y];
 					var iy = caller.states[x][y];
@@ -184,7 +188,11 @@ board_pro.prototype = {
 			for (var y=0; y<vsize; y++) {
 				for (var x=0; x<hsize; x++) {
 					// Skip if this piece is in draggable area
-					if (isPieceInDraggable(x, y)) continue;
+					if (this.draggablePiecePositions && this.draggablePiecePositions.some(p => p.x === x && p.y === y)) {
+						// Clear the area where the piece was
+						this.ctx.clearRect(x*h, y*v, h, v);
+						continue;
+					}
 
 					var ix = caller.pieces[x][y];
 					var iy = caller.states[x][y];
