@@ -315,7 +315,7 @@ board_pro.prototype = {
 			var state = this.caller.states[pos.x][pos.y];
 
 			// drawImage
-			// console.log(`Drawing draggable piece at board (${pos.x}, ${pos.y}) to canvas position (${px}, ${py}) with tileImage of (${piece}, ${state})`);
+			console.log(`Drawing draggable piece at board (${pos.x}, ${pos.y}) to canvas position (${px}, ${py}) with tileImage of (${piece}, ${state})`);
 			this.draggables_context.drawImage(
 				this.tileImage,
 				piece * h,

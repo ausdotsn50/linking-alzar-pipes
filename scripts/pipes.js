@@ -34,6 +34,11 @@ tiles = 0;
 menu_placeholder = 0;
 
 function newgame() {
+	/* By resetting the board's dimensions, we ensure that the refresh function
+	will always re-select the draggable pieces for a new game. */
+	board.hsize = 0;
+	board.vsize = 0;
+
 	form_hsize = document.getElementById("hsize");
 	form_vsize = document.getElementById("vsize");
 
@@ -46,9 +51,6 @@ function newgame() {
 
 	startTimer();
 	document.getElementById("timer").className = "";
-	
-	// Update draggable pipes after generating new game
-	board.drawDraggablePipes();
 }
 
 function form_size() {
