@@ -167,6 +167,7 @@ pipes_logic_pro.prototype = {
 			board.drawOnWin(this);
 			stopTimer();
 			document.getElementById("timer").className = "won";
+			
 		}
 		if (!norefresh) board.refresh(this);
 		return lighted == hsize * vsize;
@@ -294,8 +295,9 @@ pipes_logic_pro.prototype = {
 				if (edgeCount >= hsize * vsize - 1) break;
 			}
 		}
-
 		
+		// Storing the solved state of the pieces before *scrambling*
+        this.solution = JSON.parse(JSON.stringify(this.pieces));
 	},
 
 	scramble: function() {
@@ -308,6 +310,20 @@ pipes_logic_pro.prototype = {
 				i = i << d & 0xf | i >>> (4-d);
 				this.pieces[x][y] = i;
 			}
+		}
+	},
+
+	solve: function() {
+		if (this.solution) {
+			// Restore the solved state from the stored solution
+			this.pieces = JSON.parse(JSON.stringify(this.solution));
+			
+			// Force the board to redraw everything by resetting its size cache
+			board.hsize = 0;
+			board.vsize = 0;
+			
+			// Light the pipes, which will call refresh and redraw the solved board
+			this.light();
 		}
 	},
 

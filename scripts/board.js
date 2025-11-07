@@ -288,6 +288,30 @@ board_pro.prototype = {
 	},
 
 	drawSolution: function(caller) {
+		caller.pieces = JSON.parse(JSON.stringify(caller.solution));
+
+		// Clear both canvases
+		this.ctx.clearRect(0, 0, this.game_content.width, this.game_content.height);
+		this.clearDraggables();
+
+		var h = globals.tileset.h;
+		var v = globals.tileset.v;
+
+		// Redraw the entire board directly from the solution
+		for (var y = 0; y < caller.vsize; y++) {
+			for (var x = 0; x < caller.hsize; x++) {
+				var ix = caller.pieces[x][y]; // pieces rep
+				var iy = 1; // state rep
+				this.ctx.drawImage(this.tileImage, ix*h, iy*v, h, v, x*h, y*v, h, v);
+				
+				// Update the cache to prevent flickering or redraw issues
+				if (this.oldpieces && this.oldpieces[x]) {
+					this.oldpieces[x][y] = ix;
+					this.oldstates[x][y] = iy;
+				}
+			}
+		}
+		stopTimer(); // Timer is stop on gameOver
+		document.getElementById("timer").className = "over";
 	},
 }
-

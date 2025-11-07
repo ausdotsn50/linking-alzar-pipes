@@ -15,7 +15,8 @@ body {
 .menu {font-size: 75%}
 .menu hr {border: none; border-top: 1px solid black}
 
-.won {background-color: yellow}
+.won {background-color: rgb(152, 237, 157);}
+.over {background-color: rgb(238, 158, 158);}
 
 /* New styles for layout */
 #gameArea {
