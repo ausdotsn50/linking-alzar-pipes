@@ -26,7 +26,7 @@ function board_pro() {
 	this.ctx = this.game_content.getContext('2d');
 
 	this.draggable_pipes = document.getElementById("draggablePipes");
-	this.ctx_draggables = this.draggable_pipes.getContext('2d');
+	this.draggables_context = this.draggable_pipes.getContext('2d');
 
 	this.tileImage = new Image();
 	this.tileImage.onload = createDelegate(this._replaceTileset, this);
@@ -37,6 +37,7 @@ function board_pro() {
 board_pro.prototype = {
 	hsize: 0,
 	vsize: 0,
+	draggablePiecePositions: [], // Track which positions are in draggable area
 
 	getXY: function(x, y) {
 		var h = globals.tileset.h;
@@ -44,6 +45,15 @@ board_pro.prototype = {
 		var rect = this.game_content.getBoundingClientRect();
 		var relativeX = x - rect.left;
 		var relativeY = y - rect.top;
+		
+		// Check if the click is in a position that's been marked as draggable
+		let boardX = Math.floor(relativeX/h);
+		let boardY = Math.floor(relativeY/v);
+		
+		if (this.draggablePiecePositions && this.draggablePiecePositions.some(p => p.x === boardX && p.y === boardY)) {
+			return [boardX, boardY];
+		}
+		
 		return [Math.floor(relativeX/h), Math.floor(relativeY/v)];
 	},
 
@@ -69,6 +79,53 @@ board_pro.prototype = {
 		}
 	},
 
+	selectDraggablePieces: function() {
+		if (!this.caller) {
+			console.log('No caller available');
+			return;
+		}
+		
+		console.log('Game state:', this.caller.pieces);
+		
+		// Calculate how many pieces we need
+		var numPieces = Math.ceil((this.caller.hsize * this.caller.vsize) / 4);
+		console.log('Looking for', numPieces, 'pieces');
+		
+		// Find all existing pieces
+		let availablePositions = [];
+		for (let x = 0; x < this.caller.hsize; x++) {
+			for (let y = 0; y < this.caller.vsize; y++) {
+				// Check for any non-zero piece
+				if (this.caller.pieces[x] && this.caller.pieces[x][y] > 0) {
+					availablePositions.push({ x, y });
+					console.log('Found piece at', x, y, ':', this.caller.pieces[x][y]);
+				}
+			}
+		}
+		
+		console.log('Found', availablePositions.length, 'available pieces');
+		
+		if (availablePositions.length === 0) {
+			// If no pieces found, create some default pieces
+			for (let i = 0; i < numPieces; i++) {
+				let x = Math.floor(Math.random() * this.caller.hsize);
+				let y = Math.floor(Math.random() * this.caller.vsize);
+				availablePositions.push({ x, y });
+			}
+		} else {
+			// Shuffle existing pieces
+			for (let i = availablePositions.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[availablePositions[i], availablePositions[j]] = [availablePositions[j], availablePositions[i]];
+			}
+		}
+		
+		// Update our draggable pieces list
+		this.draggablePiecePositions = availablePositions.slice(0, numPieces);
+		
+		console.log('Selected draggable pieces:', this.draggablePiecePositions);
+	},
+
 	refresh: function(caller) {
 		this.caller = caller;
 
@@ -77,6 +134,16 @@ board_pro.prototype = {
 
 		var h = globals.tileset.h;
 		var v = globals.tileset.v;
+		
+		console.log('Refresh called with board size:', hsize, 'x', vsize);
+		
+		// Select draggable pieces if size changed or not yet selected
+		if (hsize != this.hsize || vsize != this.vsize || !this.draggablePiecePositions || !this.draggablePiecePositions.length) {
+			console.log('Selecting new draggable pieces');
+			this.selectDraggablePieces();
+			// Force redraw of draggable area
+			this.drawDraggablePipes();
+		}
 
 		// Helper function to check if a position is in draggable pieces
 		const isPieceInDraggable = (x, y) => {
@@ -145,6 +212,11 @@ board_pro.prototype = {
 		this.tileImage.src = "images/" + globals.tileset.filename;
 	},
 
+	clearDraggables: function() {
+		if (!this.draggables_context || !this.draggable_pipes) return;
+		this.draggables_context.clearRect(0, 0, this.draggable_pipes.width, this.draggable_pipes.height);
+	},
+
 	_replaceTileset: function(n) {
 		// this.tileset_loading.style.display = "none";
 
@@ -183,63 +255,68 @@ board_pro.prototype = {
 	},
 
 	drawDraggablePipes: function() {
-		if (!this.ctx_draggables || !this.draggable_pipes || !this.caller) return;
+		if (!this.caller || !this.draggablePiecePositions || !this.draggablePiecePositions.length) {
+			console.log('Missing required data for drawing draggable pipes');
+			return;
+		}
 
+		console.log('Drawing draggable pipes...');
+		this.clearDraggables();
+		
+		// Set canvas size if not already set
+		if (this.draggable_pipes.width === 0) {
+			this.draggable_pipes.width = 600;  // Adjust as needed
+			this.draggable_pipes.height = 100;  // Adjust as needed
+		}
+		
 		var h = globals.tileset.h;
 		var v = globals.tileset.v;
 		
-		// Fixed canvas dimensions
-		const FIXED_WIDTH = 1200;
-		const FIXED_HEIGHT = 100;
-		this.ctx_draggables.clearRect(0, 0, FIXED_WIDTH, FIXED_HEIGHT); // Clear canvas
-		
-		// Calculate how many pieces we need
-		var numPieces = Math.ceil((this.hsize * this.vsize) / 4);
-		
-		// Find all existing pieces in the game board
-		let availablePositions = [];
-		for (let x = 0; x < this.hsize; x++) {
-			for (let y = 0; y < this.vsize; y++) {
-				if (this.caller.pieces[x][y] !== 0) {
-					availablePositions.push({
-						x: x,
-						y: y,
-						piece: this.caller.pieces[x][y],
-						state: this.caller.states[x][y]
-					});
-				}
-			}
-		}
-		
-		// Shuffle the available positions
-		for (let i = availablePositions.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[availablePositions[i], availablePositions[j]] = [availablePositions[j], availablePositions[i]];
-		}
-		
-		// Take a random subset of the available pieces
-		var pieces = availablePositions.slice(0, numPieces);
-		
-		// Calculate spacing and position to center pieces in fixed canvas
-		var spacing = 10;
-		var totalPiecesWidth = (pieces.length * (h + spacing)) + spacing;
-		var startX = Math.max(spacing, (FIXED_WIDTH - totalPiecesWidth) / 2);
-		var centerY = (FIXED_HEIGHT - v) / 2;
+		this.draggablePieces = [];
 
-		// Draw all pieces in draggable area
-		pieces.forEach((p, index) => {
-			this.ctx_draggables.drawImage(
+		// Calculate layout
+		var spacing = 10;  // Space between pieces
+		var startX = spacing;  // Start with some padding
+		
+		// Draw each draggable piece
+		this.draggablePiecePositions.forEach((pos, index) => {
+			var px = startX + (index * (h + spacing));
+			var py = (this.draggable_pipes.height - v) / 2;  // Center vertically
+
+			var piece = this.caller.pieces[pos.x][pos.y];
+			var state = this.caller.states[pos.x][pos.y];
+			
+			// Skip if position is empty
+			if (piece === 0) {
+				console.log('Skipping empty piece at', pos);
+				return;
+			}
+
+			console.log('Drawing piece:', piece, 'at position:', px, py);
+			
+			this.draggablePieces.push({
+				pos_x: pos.x,
+				pos_y: pos.y,
+				piece: piece,
+				x: px,
+				y: py
+			});
+
+			// Draw directly with the context
+			this.draggables_context.drawImage(
 				this.tileImage,
-				p.piece * h,
-				p.state * v,
+				piece * h,
+				state * v,
 				h,
 				v,
-				startX + (h + spacing) * index,
-				centerY,
+				px,
+				py,
 				h,
 				v
 			);
 		});
+		
+		console.log('Finished drawing', this.draggablePieces.length, 'pieces');
 	}
 }
 
