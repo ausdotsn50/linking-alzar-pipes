@@ -190,6 +190,59 @@ board_pro.prototype = {
 		}
 	},
 
+	drawOnWin: function(caller) {
+		var hsize = caller.hsize;
+		var vsize = caller.vsize;
+
+		var h = globals.tileset.h;
+		var v = globals.tileset.v;
+
+		if (hsize == this.hsize && vsize == this.vsize) {
+		// if size is okay, only redraw needed tiles
+			for (var y=0; y < vsize; y++) {
+				for (var x=0; x < hsize; x++) {
+					var ix = caller.pieces[x][y];
+					var iy = caller.states[x][y];
+					if (ix != this.oldpieces[x][y] || iy != this.oldstates[x][y]) {
+						this.ctx.drawImage(this.tileImage, ix*h, iy*v, h, v, x*h, y*v, h, v);
+						this.oldpieces[x][y] = ix;
+						this.oldstates[x][y] = iy;
+					}
+				}
+			}
+
+		} else {
+		// if size is not okay, redraw the whole board
+			this.oldpieces = new Array(hsize);
+			this.oldstates = new Array(hsize);
+
+			for (var x=0; x < hsize; x++) {
+				this.oldpieces[x] = new Array(vsize);
+				this.oldstates[x] = new Array(vsize);
+			}
+
+			this.game_content.width = hsize * h;
+			this.game_content.height = vsize * v;
+
+			for (var y=0; y<vsize; y++) {
+				for (var x=0; x<hsize; x++) {
+					var ix = caller.pieces[x][y];
+					var iy = caller.states[x][y];
+
+					this.ctx.drawImage(this.tileImage, ix*h, iy*v, h, v, x*h, y*v, h, v);
+					this.oldpieces[x][y] = caller.pieces[x][y];
+					this.oldstates[x][y] = caller.states[x][y];
+				}
+			}
+
+			// Place menu placeholder at right place
+			this.menu_placeholder.style.left = (hsize*h) + 'px'
+
+			this.hsize = hsize;
+			this.vsize = vsize;
+		}
+	},
+
 	replaceTileset: function(n) {
 		if (typeof(n) != "undefined") globals.tileset = globals.tilesets[n];
 		// this.tileset_loading.style.display = "";

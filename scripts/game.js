@@ -164,6 +164,7 @@ pipes_logic_pro.prototype = {
 
 		if (lighted == hsize * vsize) {
 			// won the game
+			board.drawOnWin(this);
 			stopTimer();
 			document.getElementById("timer").className = "won";
 		}
