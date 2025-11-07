@@ -286,5 +286,8 @@ board_pro.prototype = {
 		// Refresh the entire board to draw the non-draggable pieces
 		this.refresh(caller);
 	},
+
+	drawSolution: function(caller) {
+	},
 }
 
