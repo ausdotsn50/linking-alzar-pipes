@@ -15,68 +15,14 @@
         <style type="text/css">
             .t{}
         </style>
-        <style type="text/css">
-            body {font-family: arial, sans-serif}
-            .t {position: absolute; overflow: hidden; background-repeat: no-repeat}
-            .t1 {position: absolute; top: 0px; width:200px; height:1px}
-            .menu h1 {font-size: 125%}
-            .menu {font-size: 75%}
-            .menu hr {border: none; border-top: 1px solid black}
-            
-            .won {background-color: yellow}
-
-            /* New styles for layout */
-            #gameArea {
-                position: fixed;
-                left: 0;
-                right: 200px; /* Account for sidebar */
-                top: 0;
-                bottom: 0;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                padding: 40px 0;
-            }
-
-            #mainBoard {
-                flex: 1;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-                padding: 20px;
-            }
-
-            #gameContent {
-                position: relative;
-                border: 2px solid #ccc;
-                border-radius: 8px;
-                background-color: #f8f8f8;
-            }
-
-            #draggableBoard {
-                width: 90%;
-                max-width: none;
-                margin-top: auto;
-                padding: 15px;
-                background-color: #f0f0f0;
-                border: 2px solid #ccc;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                overflow-x: auto; /* Allow horizontal scrolling if needed */
-            }
-            
-            #draggablePipes {
-                display: block; /* Remove any default inline spacing */
-                min-width: 100%; /* Ensure it takes up at least full width */
-            }
-        </style>
+        <link rel="stylesheet" type="text/css" href="pipes.css" />
     </head>
     <body style="margin:0; padding:0" onload="init()">
         <div style="position: fixed; border-left: 1px solid black; right: 0; width: 200px; height: 100%; z-index: 1; background-color: white; overflow: auto">
             <div class="menu" style="padding: 8px">
                 <img src="images/logo.png" />
-                <p style="font-size: 75%; margin: 0; padding: 0">Copyright 2010-11 WC Leung.<br />Released under <a href="http://www.gnu.org/licenses/gpl-3.0.html">GPL v3</a></p>
+                <p style="font-size: 75%; margin: 0; padding: 0">Modified 2025/11 AD Almazan.
+                    <br />Copyright 2010/11 WC Leung.<br />Released under <a href="http://www.gnu.org/licenses/gpl-3.0.html">GPL v3</a></p>
                 <h1>Size of Playing Area:</h1>
                 <p>
                 <select id="sizeselect" name="sizeselect" size="2" onchange="form_size()">
@@ -116,6 +62,9 @@
                 <div id="controlset_desc"></div>
                 <hr />
 				-->
+                <h1>Reveal Full Solution</h1>
+                <input type="button" value="Click to Reveal"> <!-- To add functionality -->
+                <hr />
 
                 <h1>Save and Load</h1>
                 <input type="button" value="Save to Bookmarks" onclick="io.saveToBookmarks(); this.blur();">

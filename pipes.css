@@ -1,0 +1,64 @@
+body {
+    font-family: arial, sans-serif;
+    background-image: url('../images/lap_bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+.t {position: absolute; overflow: hidden; background-repeat: no-repeat}
+.t1 {position: absolute; top: 0px; width:200px; height:1px}
+.menu h1 {font-size: 125%}
+.menu {font-size: 75%}
+.menu hr {border: none; border-top: 1px solid black}
+
+.won {background-color: yellow}
+
+/* New styles for layout */
+#gameArea {
+    position: fixed;
+    left: 0;
+    right: 200px; /* Account for sidebar */
+    top: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 0;
+}
+
+#mainBoard {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 20px;
+}
+
+#gameContent {
+    position: relative;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: #f8f8f8;
+}
+
+#draggableBoard {
+    width: 90%;
+    max-width: none;
+    margin-top: auto;
+    padding: 15px;
+    background-color: #f0f0f0;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-x: auto; /* Allow horizontal scrolling if needed */
+}
+
+#draggablePipes {
+    display: block; /* Remove any default inline spacing */
+    min-width: 100%; /* Ensure it takes up at least full width */
+}
