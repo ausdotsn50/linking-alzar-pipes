@@ -20,7 +20,6 @@ along with The Pipes Game.  If not, see <http://www.gnu.org/licenses/>.
 
 function board_pro() {
 	this.menu_placeholder = document.getElementById("menu_placeholder");
-	this.tileset_loading = document.getElementById("loading_images");
 	
 	this.game_content = document.getElementById("gameContent");
 	this.ctx = this.game_content.getContext('2d');
@@ -60,10 +59,6 @@ board_pro.prototype = {
 	refreshPiece: function(x, y, caller) {
 		// Skip if this piece is in draggable area
 		if (this.draggablePiecePositions && this.draggablePiecePositions.some(p => p.x === x && p.y === y)) {
-			// Clear the area where the piece was
-			var h = globals.tileset.h;
-			var v = globals.tileset.v;
-			// this.ctx.clearRect(x*h, y*v, h, v);
 			return;
 		}
 
@@ -81,7 +76,7 @@ board_pro.prototype = {
 
 	selectDraggablePieces: function() {
 		// Calculate how many pieces we need
-		var numPieces = Math.ceil((this.caller.hsize * this.caller.vsize) / 4);
+		var numPieces = this.caller.hsize;
 		
 		// Find all existing pieces
 		let availablePositions = [];
@@ -109,9 +104,8 @@ board_pro.prototype = {
 			}
 		}
 		
-		// Update our draggable pieces list
+		// draggablePiece subset only of availablePositions
 		this.draggablePiecePositions = availablePositions.slice(0, numPieces);
-		console.log('Selected draggable pieces:', this.draggablePiecePositions);
 	},
 
 	refresh: function(caller) {
@@ -136,8 +130,6 @@ board_pro.prototype = {
 				for (var x=0; x < hsize; x++) {
 					// Skip if this piece is in draggable area
 					if (this.draggablePiecePositions && this.draggablePiecePositions.some(p => p.x === x && p.y === y)) {
-						// Clear the area where the piece was
-						// this.ctx.clearRect(x*h, y*v, h, v);
 						continue;
 					}
 					
@@ -191,61 +183,11 @@ board_pro.prototype = {
 	},
 
 	drawOnWin: function(caller) {
-		var hsize = caller.hsize;
-		var vsize = caller.vsize;
-
-		var h = globals.tileset.h;
-		var v = globals.tileset.v;
-
-		if (hsize == this.hsize && vsize == this.vsize) {
-		// if size is okay, only redraw needed tiles
-			for (var y=0; y < vsize; y++) {
-				for (var x=0; x < hsize; x++) {
-					var ix = caller.pieces[x][y];
-					var iy = caller.states[x][y];
-					if (ix != this.oldpieces[x][y] || iy != this.oldstates[x][y]) {
-						this.ctx.drawImage(this.tileImage, ix*h, iy*v, h, v, x*h, y*v, h, v);
-						this.oldpieces[x][y] = ix;
-						this.oldstates[x][y] = iy;
-					}
-				}
-			}
-
-		} else {
-		// if size is not okay, redraw the whole board
-			this.oldpieces = new Array(hsize);
-			this.oldstates = new Array(hsize);
-
-			for (var x=0; x < hsize; x++) {
-				this.oldpieces[x] = new Array(vsize);
-				this.oldstates[x] = new Array(vsize);
-			}
-
-			this.game_content.width = hsize * h;
-			this.game_content.height = vsize * v;
-
-			for (var y=0; y<vsize; y++) {
-				for (var x=0; x<hsize; x++) {
-					var ix = caller.pieces[x][y];
-					var iy = caller.states[x][y];
-
-					this.ctx.drawImage(this.tileImage, ix*h, iy*v, h, v, x*h, y*v, h, v);
-					this.oldpieces[x][y] = caller.pieces[x][y];
-					this.oldstates[x][y] = caller.states[x][y];
-				}
-			}
-
-			// Place menu placeholder at right place
-			this.menu_placeholder.style.left = (hsize*h) + 'px'
-
-			this.hsize = hsize;
-			this.vsize = vsize;
-		}
+		this.refresh(caller);
 	},
 
 	replaceTileset: function(n) {
 		if (typeof(n) != "undefined") globals.tileset = globals.tilesets[n];
-		// this.tileset_loading.style.display = "";
 		this.tileImage.src = "images/" + globals.tileset.filename;
 	},
 
@@ -255,8 +197,6 @@ board_pro.prototype = {
 	},
 
 	_replaceTileset: function(n) {
-		// this.tileset_loading.style.display = "none";
-
 		var hsize = this.hsize;
 		var vsize = this.vsize;
 
@@ -278,10 +218,10 @@ board_pro.prototype = {
 			this.menu_placeholder.style.left=(hsize * h) + "px";
 		}
 		
-		// Draw the draggable pipes
 		this.drawDraggablePipes();
 	},
-
+	
+	/*
 	scrollTo: function(x, y) {
 		var h = globals.tileset.h;
 		var v = globals.tileset.v;
@@ -290,10 +230,11 @@ board_pro.prototype = {
 
 		window.scrollTo(x*h - (wh - h - 200)/2, y*v - (wv - v)/2);
 	},
+	*/
 
 	drawDraggablePipes: function() {
+		// Checker
 		if (!this.caller || !this.draggablePiecePositions || !this.draggablePiecePositions.length) {
-			// console.log('Missing required data for drawing draggable pipes');
 			return;
 		}
 
@@ -314,8 +255,6 @@ board_pro.prototype = {
 			var piece = this.caller.pieces[pos.x][pos.y];
 			var state = this.caller.states[pos.x][pos.y];
 
-			// drawImage
-			console.log(`Drawing draggable piece at board (${pos.x}, ${pos.y}) to canvas position (${px}, ${py}) with tileImage of (${piece}, ${state})`);
 			this.draggables_context.drawImage(
 				this.tileImage,
 				piece * h,
