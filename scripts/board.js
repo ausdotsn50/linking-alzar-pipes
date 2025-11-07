@@ -63,7 +63,7 @@ board_pro.prototype = {
 			// Clear the area where the piece was
 			var h = globals.tileset.h;
 			var v = globals.tileset.v;
-			this.ctx.clearRect(x*h, y*v, h, v);
+			// this.ctx.clearRect(x*h, y*v, h, v);
 			return;
 		}
 
@@ -80,16 +80,8 @@ board_pro.prototype = {
 	},
 
 	selectDraggablePieces: function() {
-		if (!this.caller) {
-			console.log('No caller available');
-			return;
-		}
-		
-		console.log('Game state:', this.caller.pieces);
-		
 		// Calculate how many pieces we need
 		var numPieces = Math.ceil((this.caller.hsize * this.caller.vsize) / 4);
-		console.log('Looking for', numPieces, 'pieces');
 		
 		// Find all existing pieces
 		let availablePositions = [];
@@ -98,12 +90,9 @@ board_pro.prototype = {
 				// Check for any non-zero piece
 				if (this.caller.pieces[x] && this.caller.pieces[x][y] > 0) {
 					availablePositions.push({ x, y });
-					console.log('Found piece at', x, y, ':', this.caller.pieces[x][y]);
 				}
 			}
 		}
-		
-		console.log('Found', availablePositions.length, 'available pieces');
 		
 		if (availablePositions.length === 0) {
 			// If no pieces found, create some default pieces
@@ -122,7 +111,6 @@ board_pro.prototype = {
 		
 		// Update our draggable pieces list
 		this.draggablePiecePositions = availablePositions.slice(0, numPieces);
-		
 		console.log('Selected draggable pieces:', this.draggablePiecePositions);
 	},
 
@@ -135,21 +123,12 @@ board_pro.prototype = {
 		var h = globals.tileset.h;
 		var v = globals.tileset.v;
 		
-		console.log('Refresh called with board size:', hsize, 'x', vsize);
-		
 		// Select draggable pieces if size changed or not yet selected
 		if (hsize != this.hsize || vsize != this.vsize || !this.draggablePiecePositions || !this.draggablePiecePositions.length) {
 			console.log('Selecting new draggable pieces');
 			this.selectDraggablePieces();
-			// Force redraw of draggable area
 			this.drawDraggablePipes();
 		}
-
-		// Helper function to check if a position is in draggable pieces
-		const isPieceInDraggable = (x, y) => {
-			if (!this.draggablePieces) return false;
-			return this.draggablePieces.some(p => p.x === x && p.y === y);
-		};
 
 		if (hsize == this.hsize && vsize == this.vsize) {
 		// if size is okay, only redraw needed tiles
@@ -158,7 +137,7 @@ board_pro.prototype = {
 					// Skip if this piece is in draggable area
 					if (this.draggablePiecePositions && this.draggablePiecePositions.some(p => p.x === x && p.y === y)) {
 						// Clear the area where the piece was
-						this.ctx.clearRect(x*h, y*v, h, v);
+						// this.ctx.clearRect(x*h, y*v, h, v);
 						continue;
 					}
 					
@@ -208,9 +187,6 @@ board_pro.prototype = {
 
 			this.hsize = hsize;
 			this.vsize = vsize;
-
-			// Update draggable pipes with new board pieces
-			this.drawDraggablePipes();
 		}
 	},
 
@@ -264,23 +240,14 @@ board_pro.prototype = {
 
 	drawDraggablePipes: function() {
 		if (!this.caller || !this.draggablePiecePositions || !this.draggablePiecePositions.length) {
-			console.log('Missing required data for drawing draggable pipes');
+			// console.log('Missing required data for drawing draggable pipes');
 			return;
 		}
 
-		console.log('Drawing draggable pipes...');
 		this.clearDraggables();
-		
-		// Set canvas size if not already set
-		if (this.draggable_pipes.width === 0) {
-			this.draggable_pipes.width = 600;  // Adjust as needed
-			this.draggable_pipes.height = 100;  // Adjust as needed
-		}
 		
 		var h = globals.tileset.h;
 		var v = globals.tileset.v;
-		
-		this.draggablePieces = [];
 
 		// Calculate layout
 		var spacing = 10;  // Space between pieces
@@ -293,24 +260,8 @@ board_pro.prototype = {
 
 			var piece = this.caller.pieces[pos.x][pos.y];
 			var state = this.caller.states[pos.x][pos.y];
-			
-			// Skip if position is empty
-			if (piece === 0) {
-				console.log('Skipping empty piece at', pos);
-				return;
-			}
 
-			console.log('Drawing piece:', piece, 'at position:', px, py);
-			
-			this.draggablePieces.push({
-				pos_x: pos.x,
-				pos_y: pos.y,
-				piece: piece,
-				x: px,
-				y: py
-			});
-
-			// Draw directly with the context
+			// drawImage
 			this.draggables_context.drawImage(
 				this.tileImage,
 				piece * h,
@@ -323,8 +274,6 @@ board_pro.prototype = {
 				v
 			);
 		});
-		
-		console.log('Finished drawing', this.draggablePieces.length, 'pieces');
 	}
 }
 
