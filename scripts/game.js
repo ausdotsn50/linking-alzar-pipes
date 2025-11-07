@@ -239,7 +239,7 @@ pipes_logic_pro.prototype = {
 			}
 		}
 
-		console.table(edgeList); // For visualization
+		// console.table(edgeList); // For visualization
 
 		// Sort edges by weight
 		edgeList.sort((a, b) => a.weight - b.weight);
