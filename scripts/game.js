@@ -327,6 +327,7 @@ pipes_logic_pro.prototype = {
 		}
 	},
 
+	/* 
 	// Save data in object obj. Only relevant properties are added
 	save: function(obj) {
 		var hsize = this.hsize;
@@ -458,6 +459,6 @@ pipes_logic_pro.prototype = {
 
 		return true;
 	}
-
+	*/
 	// To do: generate an auto solution if user wants to surrender for solution
 }
