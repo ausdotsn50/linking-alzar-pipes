@@ -104,6 +104,7 @@ pipes_logic_pro.prototype = {
 	},
 
 	// Light pipes and determine if the game is won
+	// Adapted:https://www.geeksforgeeks.org/dsa/breadth-first-search-or-bfs-for-a-graph/
 	light: function(cx, cy, norefresh) {
 		if (typeof cx == "undefined") {
 			cx = this.cx;
@@ -120,6 +121,7 @@ pipes_logic_pro.prototype = {
 		var hsize = this.hsize;
 		var vsize = this.vsize;
 
+		// Clears everything to be NOT lit
 		for (var x=0; x < hsize; x++) {
 			for (var y=0; y < vsize; y++) {
 				this.states[x][y] &= 0xe;
@@ -127,42 +129,53 @@ pipes_logic_pro.prototype = {
 		}
 
 		var lighted = 0;
-		var lightList = new Array(hsize * vsize);
-		lightList[0] = (cy << 8) + cx;
-		var lightCount = 1;
+		var queue = [];
 
-		while (lightCount) {
+		// Start BFS from the power source
+		// Mark the source as lit and add it to the queue
+		if (this.states[cx][cy] !== undefined) {
+			this.states[cx][cy] |= 1;
+			queue.push({x: cx, y: cy});
 			lighted++;
+		}
 
-			lightCount--;
-			var c = lightList[lightCount];
-			var x = c & 0xff;
-			var y = c >>> 8;
-			this.states[x][y] |= 1;
+		while (queue.length > 0) {
+			var current = queue.shift(); // Dequeue
+			var x = current.x;
+			var y = current.y;
 
-			if (y > 0 && this.pieces[x][y] & 1 &&
-					this.pieces[x][y-1] & 4 && !(this.states[x][y-1] & 1)) {
-				lightList[lightCount] = (y-1 << 8) + x;
-				lightCount++;
+			// Check neighbors
+			// Check up
+			if (y > 0 && (this.pieces[x][y] & 1) &&
+					(this.pieces[x][y-1] & 4) && !(this.states[x][y-1] & 1)) {
+				this.states[x][y-1] |= 1;
+				queue.push({x: x, y: y-1});
+				lighted++;
 			}
-			if (x < hsize-1 && this.pieces[x][y] & 2 &&
-					this.pieces[x+1][y] & 8 && !(this.states[x+1][y] & 1)) {
-				lightList[lightCount] = (y << 8) + x+1;
-				lightCount++;
+			// Check right
+			if (x < hsize-1 && (this.pieces[x][y] & 2) &&
+					(this.pieces[x+1][y] & 8) && !(this.states[x+1][y] & 1)) {
+				this.states[x+1][y] |= 1;
+				queue.push({x: x+1, y: y});
+				lighted++;
 			}
-			if (y < vsize-1 && this.pieces[x][y] & 4 &&
-					this.pieces[x][y+1] & 1 && !(this.states[x][y+1] & 1)) {
-				lightList[lightCount] = (y+1 << 8) + x;
-				lightCount++;
+			// Check down
+			if (y < vsize-1 && (this.pieces[x][y] & 4) &&
+					(this.pieces[x][y+1] & 1) && !(this.states[x][y+1] & 1)) {
+				this.states[x][y+1] |= 1;
+				queue.push({x: x, y: y+1});
+				lighted++;
 			}
-			if (x > 0 && this.pieces[x][y] & 8 &&
-					this.pieces[x-1][y] & 2 && !(this.states[x-1][y] & 1)) {
-				lightList[lightCount] = (y << 8) + x-1;
-				lightCount++;
+			// Check left
+			if (x > 0 && (this.pieces[x][y] & 8) &&
+					(this.pieces[x-1][y] & 2) && !(this.states[x-1][y] & 1)) {
+				this.states[x-1][y] |= 1;
+				queue.push({x: x-1, y: y});
+				lighted++;
 			}
 		}
 
-		if (lighted == hsize * vsize) {
+		if (lighted == hsize * vsize) { // **all are lighted** 
 			// won the game
 			board.drawOnWin(this);
 			stopTimer();
@@ -459,6 +472,6 @@ pipes_logic_pro.prototype = {
 
 		return true;
 	}
-	*/
+	*/ 
 	// To do: generate an auto solution if user wants to surrender for solution
 }
