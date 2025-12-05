@@ -104,7 +104,7 @@ pipes_logic_pro.prototype = {
 	},
 
 	// Light pipes and determine if the game is won
-	// Adapted:https://www.geeksforgeeks.org/dsa/breadth-first-search-or-bfs-for-a-graph/
+	// Adapted: https://www.geeksforgeeks.org/dsa/breadth-first-search-or-bfs-for-a-graph/
 	light: function(cx, cy, norefresh) {
 		if (typeof cx == "undefined") {
 			cx = this.cx;
@@ -253,7 +253,7 @@ pipes_logic_pro.prototype = {
 			}
 		}
 
-		// console.table(edgeList); // For visualization
+		console.table(edgeList); // For visualization
 
 		// Sort edges by weight
 		edgeList.sort((a, b) => a.weight - b.weight);
@@ -304,6 +304,7 @@ pipes_logic_pro.prototype = {
 				this.pieces[x][y] |= edge.bit;
 				this.pieces[nx][ny] |= edge.opp;
 				
+				console.log(`Connecting (${x}, ${y}) to (${nx}, ${ny})`);
 				// hsize * vsize - 1 edges only for MST
 				if (edgeCount >= hsize * vsize - 1) break;
 			}
@@ -311,6 +312,9 @@ pipes_logic_pro.prototype = {
 		
 		// Storing the solved state of the pieces before *scrambling*
         this.solution = JSON.parse(JSON.stringify(this.pieces));
+		console.log("Pieces\n", this.pieces);
+		console.log("States\n", this.states);
+		console.log("Solution\n",this.solution);
 	},
 
 	scramble: function() {

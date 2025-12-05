@@ -27,8 +27,10 @@ The gameplay centers around connecting pipe tiles to form a continuous network t
 
 <!-- GETTING STARTED -->
 ## Implemented Modifications
-### Data Structure
 ### Algorithm
+> Pipes Maze Generation Algorithm - Prim's to Kruskal's
+
+> Pipes Connection Checker Algorithm - Depth First Search to Breadth First Search 
 
 ## Gameplay Mechanics
 When starting a new game, the playing area size is 4x4 by default, though a different configuration can be chosen. For this release version, the available sizes are 4x4 and 8x8. The timer, located on the right sidebar, starts as soon as the game begins. Additionally, the sidebar includes an option to reveal the full solution.
@@ -39,12 +41,8 @@ Uniquely, not all pipe pieces are initially placed on the main board; some are l
 
 The goal is to strategically determine pipe positioning to create a fully connected pipeline, avoiding loops or dead ends.
 
-<!-- USAGE EXAMPLES -->
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
+## Deployment
+https://ausdotsn50.github.io/linking-alzar-pipes/
 
 <!-- LICENSE -->
 ## License
